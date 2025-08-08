@@ -1,0 +1,10 @@
+# Copyright © 2024 Brent Tunnicliff <brent@tunnicliff.dev>
+
+name: 'Template action'
+description: 'Replace me'
+runs:
+  using: "composite"
+  steps:
+    - name: Hello
+      run: echo "Hello World!"
+      shell: bash
