@@ -7,7 +7,7 @@ inputs:
     description: "The platform to be used, options are 'iOS', 'macOS', 'tvOS', 'watchOS', 'visionOS'."
     required: true
     type: string
-  os_version:
+  simulator_version:
     description: "OS Version of simulator to use. Is ignored if platform is 'macOS'."
     required: false
     type: string
@@ -21,7 +21,7 @@ runs:
       shell: bash
       run: |
         PLATFORM="${{ inputs.platform }}"
-        OS_VERSION="${{ inputs.os_version }}"
+        OS_VERSION="${{ inputs.simulator_version }}"
         if [[ $PLATFORM == "macOS" ]]; then
           # macOS doesn't use a simulator, so set the DESTINATION directly.
           DESTINATION="platform=macOS"
