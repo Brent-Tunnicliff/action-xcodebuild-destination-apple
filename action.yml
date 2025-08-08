@@ -1,7 +1,7 @@
 # Copyright © 2025 Brent Tunnicliff <brent@tunnicliff.dev>
 
-name: 'xcodebuild destination command'
-description: 'Returns the xcodebuild destination command for the input platform. Expects any desired simulator to already available on the machine.'
+name: 'xcodebuild destination'
+description: 'Returns the xcodebuild destination for the input platform. Expects any desired simulator to already available on the machine.'
 inputs:
   platform:
     description: "The platform to be used, options are 'iOS', 'macOS', 'tvOS', 'watchOS', 'visionOS'."
@@ -12,7 +12,9 @@ inputs:
     required: false
     type: string
 outputs:
-  destination: ${{ steps.destination.outputs.destination }}
+  destination:
+    description: "The destination to be passed into the xcodebuild command."
+    value: ${{ steps.destination.outputs.destination }}
 runs:
   using: "composite"
   steps:
