@@ -1,10 +1,55 @@
-# Copyright © 2024 Brent Tunnicliff <brent@tunnicliff.dev>
+# Copyright © 2025 Brent Tunnicliff <brent@tunnicliff.dev>
 
-name: 'Template action'
-description: 'Replace me'
+name: 'xcodebuild destination command'
+description: 'Returns the xcodebuild destination command for the input platform. Expects any desired simulator to already available on the machine.'
+inputs:
+  platform:
+    description: "The platform to be used, options are 'iOS', 'macOS', 'tvOS', 'watchOS', 'visionOS'."
+    required: true
+    type: string
+  os_version:
+    description: "OS Version of simulator to use. Is ignored if platform is 'macOS'."
+    required: false
+    type: string
+outputs:
+  destination: ${{ steps.destination.outputs.destination }}
 runs:
   using: "composite"
   steps:
-    - name: Hello
-      run: echo "Hello World!"
+    - name: Destination
+      id: destination
       shell: bash
+      run: |
+        PLATFORM="${{ inputs.platform }}"
+        OS_VERSION="${{ inputs.os_version }}"
+        if [[ $PLATFORM == "macOS" ]]; then
+          # macOS doesn't use a simulator, so set the DESTINATION directly.
+          DESTINATION="platform=macOS"
+        elif [[ $PLATFORM == "iOS" || $PLATFORM == "tvOS" || $PLATFORM == "watchOS" || $PLATFORM == "visionOS" ]]; then
+          SIMULATOR="$PLATFORM $OS_VERSION"
+        else
+          echo "Unexpected platform value '$PLATFORM'"
+          exit 1
+        fi
+
+        # If we need a simulator, query which one to select and define its DESTINATION.
+        if [[ $SIMULATOR != "" ]]; then
+          # We query to get a specific UUID of a matching simulator to make xcodebuild commands more stable.
+          DEVICE_ID=$(xcrun simctl list devices "$SIMULATOR" | grep -m 1 -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
+
+          if [[ $DEVICE_ID == "" ]]; then
+            # Lets not worry about the added complexity of creating a new simulator.
+            echo "No simulators matching '$SIMULATOR' available on machine"
+            exit 1
+          fi
+
+          DESTINATION="id=$DEVICE_ID"
+        fi
+
+        if [[ $DESTINATION != "" ]]; then
+          echo $DESTINATION
+          echo "destination=$DESTINATION" >> "$GITHUB_OUTPUT"
+        else
+          echo "DESTINATION missing"
+          exit 1
+        fi
