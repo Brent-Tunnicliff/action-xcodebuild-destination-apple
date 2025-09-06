@@ -21,9 +21,10 @@ runs:
     - name: Destination
       id: destination
       shell: bash
+      env:
+        OS_VERSION: ${{ inputs.simulator_version }}
+        PLATFORM: ${{ inputs.platform }}
       run: |
-        PLATFORM="${{ inputs.platform }}"
-        OS_VERSION="${{ inputs.simulator_version }}"
         if [[ $PLATFORM == "macOS" ]]; then
           # macOS doesn't use a simulator, so set the DESTINATION directly.
           DESTINATION="platform=macOS"
